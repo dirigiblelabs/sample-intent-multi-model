@@ -1,0 +1,5 @@
+{
+    "module": "navigation/configs/settings.js",
+    "extensionPoint": "application-perspectives",
+    "description": "Navigation group - Settings"
+}

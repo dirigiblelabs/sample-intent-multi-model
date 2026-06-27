@@ -1,0 +1,5 @@
+{
+    "module": "navigation/configs/payments.js",
+    "extensionPoint": "application-perspectives",
+    "description": "Navigation group - Payments"
+}
