@@ -47,12 +47,15 @@ entities:
       - { name: number, type: string, length: 100, calculatedOnCreate: "java.util.UUID.randomUUID().toString()" }
       - { name: date, type: date, required: true }
       - { name: due, type: date }
-      - { name: net,      type: decimal, precision: 18, scale: 2, aggregate: true }
-      - { name: vat,      type: decimal, precision: 18, scale: 2, aggregate: true }
-      - { name: gross,    type: decimal, precision: 18, scale: 2, aggregate: true }
+      # Document totals: aggregate fields shown read-only in the footer. Net/Vat/Discount/Total are
+      # kept equal to the sum of the line items' same-named fields (auto-derived sum roll-ups, by name
+      # convention). Paid is shown in the footer too but is not summed from items (payments carry an
+      # `amount`, not a `paid`); wire it via an explicit payments roll-up when needed.
+      - { name: net, type: decimal, precision: 18, scale: 2, aggregate: true }
+      - { name: vat, type: decimal, precision: 18, scale: 2, aggregate: true }
       - { name: discount, type: decimal, precision: 18, scale: 2, aggregate: true }
-      - { name: total,    type: decimal, precision: 18, scale: 2, aggregate: true }
-      - { name: paid,     type: decimal, precision: 18, scale: 2, aggregate: true }
+      - { name: total, type: decimal, precision: 18, scale: 2, aggregate: true }
+      - { name: paid, type: decimal, precision: 18, scale: 2, aggregate: true }
       - { name: uuid, type: uuid, unique: true }
     relations:
       - { name: Customer, kind: manyToOne, to: Customer, model: customers, required: true }
@@ -66,9 +69,14 @@ entities:
       - { name: name, type: string, length: 200 }
       - { name: quantity, type: decimal, precision: 18, scale: 3, required: true }
       - { name: price, type: decimal, precision: 18, scale: 2, required: true }
-      - { name: net, type: decimal, precision: 18, scale: 2 }
-      - { name: vat, type: decimal, precision: 18, scale: 2 }
-      - { name: gross, type: decimal, precision: 18, scale: 2 }
+      - { name: discount, type: decimal, precision: 18, scale: 2 }
+      # Calculated per line by neutral arithmetic expressions (PascalCase identifiers = the entity
+      # property names). The SDK Calc evaluator runs these on the server; the document item dialog
+      # previews them live with the identical JS evaluator. Net/Vat/Total render read-only. Declared
+      # after their inputs so each can read the previous (Net -> Vat -> Total).
+      - { name: net, type: decimal, precision: 18, scale: 2, calculatedOnCreate: "Quantity * Price", calculatedOnUpdate: "Quantity * Price" }
+      - { name: vat, type: decimal, precision: 18, scale: 2, calculatedOnCreate: "round(Net * 0.2, 2)", calculatedOnUpdate: "round(Net * 0.2, 2)" }
+      - { name: total, type: decimal, precision: 18, scale: 2, calculatedOnCreate: "Net + Vat - Discount", calculatedOnUpdate: "Net + Vat - Discount" }
     relations:
       - { name: SalesInvoice, kind: manyToOne, to: SalesInvoice, composition: true, required: true }
       - { name: UoM, kind: manyToOne, to: UoM, model: uoms }
