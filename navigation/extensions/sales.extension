@@ -1,0 +1,5 @@
+{
+    "module": "navigation/configs/sales.js",
+    "extensionPoint": "application-perspectives",
+    "description": "Navigation group - Sales"
+}

@@ -30,6 +30,26 @@ It demonstrates three capabilities of the intent layer:
 `SalesInvoice -> SalesInvoiceItem` is a 1:n composition (local). `SalesInvoice <-> CustomerPayment` is
 the cross-model n:m, modelled by the `SalesInvoiceCustomerPayment` intermediate entity.
 
+The [`navigation`](navigation/) project is **not** an intent project: it defines the shared-shell
+navigation groups once (`getPerspectiveGroup()` for `master-data`, `sales`, `payments`, `settings`),
+which the domain entities reference via `group:`.
+
+## One shared shell (no app-hopping)
+
+Each domain project generates its own standalone app shell (handy for running or testing a single
+domain), **and** contributes its entities as grouped perspectives to the platform's shared shell.
+Open the shared shell at `/services/web/dashboard/` after publishing all projects and you get **one**
+app with a single grouped sidebar:
+
+- **Master Data** - UoM, Country, Currency, Customer
+- **Sales** - Sales Invoices
+- **Payments** - Customer Payments
+- **Settings** - the nomenclatures (Number, statuses, methods)
+
+Each entry opens that domain's screen embedded in the one shell, so the user never jumps between
+per-project UIs. (Grouping is driven by `group:` on each entity + the `navigation` project; it
+requires the intent shared-shell support, PRs eclipse-dirigible/dirigible#6089 and #6090.)
+
 ## How to run
 
 1. Import all six projects into your workspace (clone this repo; each subfolder is a project).
