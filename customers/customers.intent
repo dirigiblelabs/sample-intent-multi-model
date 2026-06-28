@@ -1,12 +1,12 @@
 name: customers
 description: Customer master data
-icon: users
+icon: users-alt
 uses:
   - { model: countries }
   - { model: currencies }
 entities:
   - name: Customer
-    icon: users
+    icon: users-alt
     audit: true
     group: master-data
     fields:
