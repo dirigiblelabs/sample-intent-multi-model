@@ -25,3 +25,18 @@ entities:
       - { name: rate, type: decimal, precision: 18, scale: 6, required: true }
     relations:
       - { name: Currency, kind: manyToOne, to: Currency, required: true }
+
+# Seed currency nomenclature (sourced from codbex/codbex-currencies-data). EUR is the base
+# currency (rate 1); the rest are non-base. Ids are explicit (no generated sequence in the seed).
+seeds:
+  - name: currencies
+    entity: Currency
+    rows:
+      - { id: 1, code: EUR, name: Euro, symbol: €, isPrefix: false, numeric: 978, rounding: 2, base: true, rate: 1 }
+      - { id: 2, code: USD, name: US Dollar, symbol: $, isPrefix: true, numeric: 840, rounding: 2, base: false }
+      - { id: 3, code: GBP, name: Pound Sterling, symbol: £, isPrefix: true, numeric: 826, rounding: 2, base: false }
+      - { id: 4, code: JPY, name: Yen, symbol: ¥, isPrefix: true, numeric: 392, rounding: 0, base: false }
+      - { id: 5, code: CHF, name: Swiss Franc, symbol: Fr, isPrefix: true, numeric: 756, rounding: 2, base: false }
+      - { id: 6, code: CNY, name: Yuan Renminbi, symbol: ¥, isPrefix: true, numeric: 156, rounding: 2, base: false }
+      - { id: 7, code: CAD, name: Canadian Dollar, symbol: $, isPrefix: true, numeric: 124, rounding: 2, base: false }
+      - { id: 8, code: AUD, name: Australian Dollar, symbol: $, isPrefix: true, numeric: 36, rounding: 2, base: false }
