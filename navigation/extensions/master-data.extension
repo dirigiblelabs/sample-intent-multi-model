@@ -1,5 +1,0 @@
-{
-    "module": "navigation/configs/master-data.js",
-    "extensionPoint": "application-perspectives",
-    "description": "Navigation group - Master Data"
-}
