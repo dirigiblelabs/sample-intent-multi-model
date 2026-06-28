@@ -1,10 +1,10 @@
 name: currencies
 description: Currency nomenclature and exchange rates
-icon: banknote
+icon: money-bill
 entities:
   - name: Currency
     kind: setting
-    icon: banknote
+    icon: money-bill
     audit: true
     group: master-data
     fields:
