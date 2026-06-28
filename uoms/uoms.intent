@@ -22,3 +22,54 @@ entities:
       - { name: base, type: boolean }
     relations:
       - { name: Dimension, kind: manyToOne, to: Dimension }
+
+# Seed major dimensions and common units of measure (sourced from codbex/codbex-uoms-data).
+# Note: a UoM's Dimension is a relation (not a plain field) and isn't part of the seed CSV columns,
+# so UoMs are seeded without a dimension link. Ids are explicit (no generated sequence in the seed).
+seeds:
+  - name: dimensions
+    entity: Dimension
+    rows:
+      - { id: 1, name: Length, sap: LENGTH }
+      - { id: 2, name: Mass, sap: MASS }
+      - { id: 3, name: Time, sap: TIME }
+      - { id: 4, name: Area, sap: SURFAC }
+      - { id: 5, name: Volume, sap: VOLUME }
+      - { id: 6, name: Temperature, sap: TEMP }
+      - { id: 7, name: Electrical Current, sap: ECURR }
+      - { id: 8, name: Speed, sap: SPEED }
+      - { id: 9, name: Energy, sap: ENERGY }
+      - { id: 10, name: Power, sap: POWER }
+      - { id: 11, name: Pressure, sap: PRESS }
+      - { id: 12, name: Frequency, sap: FREQU }
+      - { id: 13, name: Force, sap: FORCE }
+  - name: unit-of-measures
+    entity: UoM
+    rows:
+      - { id: 1, name: Each, iso: EA, sap: EA, numerator: 1, denominator: 1, rounding: 0, base: true }
+      - { id: 2, name: Pieces, iso: C62, sap: PCE, numerator: 1, denominator: 1, rounding: 0, base: false }
+      - { id: 3, name: Pair, iso: NPR, sap: PAA, numerator: 1, denominator: 1, rounding: 0, base: false }
+      - { id: 4, name: Dozen, iso: DPC, sap: DZ, numerator: 1, denominator: 1, rounding: 0, base: false }
+      - { id: 5, name: Pack, iso: NMP, sap: PAK, numerator: 1, denominator: 1, rounding: 0, base: false }
+      - { id: 6, name: Pallet, iso: PF, sap: PAL, numerator: 1, denominator: 1, rounding: 0, base: false }
+      - { id: 7, name: Gram, iso: GRM, sap: G, numerator: 1, denominator: 1, rounding: 0, base: true }
+      - { id: 8, name: Kilogram, iso: KGM, sap: KG, numerator: 1000, denominator: 1, rounding: 0, base: false }
+      - { id: 9, name: Milligram, iso: MGM, sap: MG, numerator: 1, denominator: 1000, rounding: 0, base: false }
+      - { id: 10, name: Tonne, iso: TNE, sap: TO, numerator: 1000000, denominator: 1, rounding: 0, base: false }
+      - { id: 11, name: Meter, iso: MTR, sap: M, numerator: 1, denominator: 1, rounding: 0, base: true }
+      - { id: 12, name: Centimeter, iso: CMT, sap: CM, numerator: 1, denominator: 100, rounding: 0, base: false }
+      - { id: 13, name: Millimeter, iso: MMT, sap: MM, numerator: 1, denominator: 1000, rounding: 0, base: false }
+      - { id: 14, name: Kilometer, iso: KMT, sap: KM, numerator: 1000, denominator: 1, rounding: 0, base: false }
+      - { id: 15, name: Inch, iso: INH, sap: IN, numerator: 254, denominator: 10000, rounding: 0, base: false }
+      - { id: 16, name: Foot, iso: FOT, sap: FT, numerator: 3048, denominator: 10000, rounding: 0, base: false }
+      - { id: 17, name: Square meter, iso: MTK, sap: M2, numerator: 1, denominator: 1, rounding: 0, base: true }
+      - { id: 18, name: Cubic meter, iso: MTQ, sap: M3, numerator: 1, denominator: 1, rounding: 0, base: true }
+      - { id: 19, name: Liter, iso: LTR, sap: L, numerator: 1, denominator: 1000, rounding: 0, base: false }
+      - { id: 20, name: Milliliter, iso: MLT, sap: ML, numerator: 1, denominator: 1000000, rounding: 0, base: false }
+      - { id: 21, name: Second, iso: SEC, sap: S, numerator: 1, denominator: 1, rounding: 0, base: true }
+      - { id: 22, name: Minute, iso: MIN, sap: MIN, numerator: 60, denominator: 1, rounding: 0, base: false }
+      - { id: 23, name: Hour, iso: HUR, sap: H, numerator: 3600, denominator: 1, rounding: 0, base: false }
+      - { id: 24, name: Day, iso: DAY, sap: TAG, numerator: 86400, denominator: 1, rounding: 0, base: false }
+      - { id: 25, name: Watt, iso: WTT, sap: W, numerator: 1, denominator: 1, rounding: 0, base: true }
+      - { id: 26, name: Kilowatt, iso: KWT, sap: KW, numerator: 1000, denominator: 1, rounding: 0, base: false }
+      - { id: 27, name: Kelvin, iso: KEL, sap: K, numerator: 1, denominator: 1, rounding: 0, base: true }

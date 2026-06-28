@@ -90,3 +90,21 @@ entities:
     relations:
       - { name: SalesInvoice, kind: manyToOne, to: SalesInvoice, composition: true, required: true }
       - { name: CustomerPayment, kind: manyToOne, to: CustomerPayment, model: customer-payments, required: true }
+
+# Seed nomenclature loaded on deploy (sourced from codbex/codbex-methods-data). Each seed
+# materializes into a .csvim + .csv for its settings entity. Ids are explicit (the PK has no
+# generated sequence in the seed import).
+seeds:
+  - name: payment-methods
+    entity: PaymentMethod
+    rows:
+      - { id: 1, name: Cash }
+      - { id: 2, name: Bank transfer }
+      - { id: 3, name: Debit card }
+      - { id: 4, name: Credit card }
+  - name: sent-methods
+    entity: SentMethod
+    rows:
+      - { id: 1, name: E-mail }
+      - { id: 2, name: Delivery }
+      - { id: 3, name: Pickup }
