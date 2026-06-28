@@ -1,13 +1,7 @@
 name: uoms
-description: Units of measure and their dimensions
+description: Units of measure
 icon: ruler
 entities:
-  - name: Dimension
-    kind: setting
-    fields:
-      - { name: id, type: integer, primaryKey: true, generated: true }
-      - { name: name, type: string, required: true, length: 100 }
-      - { name: sap, type: string, length: 20 }
   - name: UoM
     kind: setting
     icon: ruler
@@ -20,29 +14,10 @@ entities:
       - { name: denominator, type: decimal, precision: 18, scale: 6 }
       - { name: rounding, type: integer }
       - { name: base, type: boolean }
-    relations:
-      - { name: Dimension, kind: manyToOne, to: Dimension }
 
-# Seed major dimensions and common units of measure (sourced from codbex/codbex-uoms-data).
-# Note: a UoM's Dimension is a relation (not a plain field) and isn't part of the seed CSV columns,
-# so UoMs are seeded without a dimension link. Ids are explicit (no generated sequence in the seed).
+# Seed common units of measure (sourced from codbex/codbex-uoms-data). Ids are explicit (no
+# generated sequence in the seed).
 seeds:
-  - name: dimensions
-    entity: Dimension
-    rows:
-      - { id: 1, name: Length, sap: LENGTH }
-      - { id: 2, name: Mass, sap: MASS }
-      - { id: 3, name: Time, sap: TIME }
-      - { id: 4, name: Area, sap: SURFAC }
-      - { id: 5, name: Volume, sap: VOLUME }
-      - { id: 6, name: Temperature, sap: TEMP }
-      - { id: 7, name: Electrical Current, sap: ECURR }
-      - { id: 8, name: Speed, sap: SPEED }
-      - { id: 9, name: Energy, sap: ENERGY }
-      - { id: 10, name: Power, sap: POWER }
-      - { id: 11, name: Pressure, sap: PRESS }
-      - { id: 12, name: Frequency, sap: FREQU }
-      - { id: 13, name: Force, sap: FORCE }
   - name: unit-of-measures
     entity: UoM
     rows:
