@@ -4,8 +4,8 @@
  * (the shell drops duplicate group ids).
  */
 exports.getPerspectiveGroup = () => ({
-	id: 'master-data',
-	label: 'Master Data',
+	id: 'partners',
+	label: 'Partners',
 	expanded: true,
 	order: 10,
 	icon: '/services/web/resources/unicons/database.svg',
