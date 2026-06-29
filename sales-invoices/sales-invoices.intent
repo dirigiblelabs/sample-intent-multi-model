@@ -91,6 +91,30 @@ entities:
       - { name: SalesInvoice, kind: manyToOne, to: SalesInvoice, composition: true, required: true }
       - { name: CustomerPayment, kind: manyToOne, to: CustomerPayment, model: customer-payments, required: true }
 
+# Sales-invoice lifecycle. Starts when a SalesInvoice is created (record is DRAFT, status id 1) and
+# walks the three user tasks Approve -> Issue -> Send. Each task sets Status by the seed id via
+# `setStatus` (2=APPROVED, 3=ISSUED, 4=SENT) - the equivalent of the sample model's status="ACTIVE"
+# but keyed by the SalesInvoiceStatus seed id rather than a string. A `cancel` user task is intended
+# to be available at all times and sets Status to 5=CANCELLED; the linear step model can't express a
+# truly parallel "always-on" task, so cancel is modelled as a reachable user task and the
+# always-available behaviour is enforced in the generated user-task handler. The real
+# invoice-number generation at Issue remains runtime behaviour in that step's handler.
+processes:
+  - name: SalesInvoiceApproval
+    trigger: { onCreate: SalesInvoice }
+    steps:
+      - { name: approve, kind: userTask, args: { assignee: approver, form: ApproveSalesInvoice, setStatus: 2 } }
+      - { name: issue,   kind: userTask, args: { assignee: issuer,   form: IssueSalesInvoice,   setStatus: 3 } }
+      - { name: send,    kind: userTask, args: { assignee: sender,   form: SendSalesInvoice,    setStatus: 4 } }
+      - { name: cancel,  kind: userTask, args: { assignee: any, form: CancelSalesInvoice, setStatus: 5, availableAlways: true } }
+      - { name: end,     kind: end }
+
+forms:
+  - { name: ApproveSalesInvoice, forEntity: SalesInvoice, fields: [number, date, due, Customer, total, Status], actions: [approve, reject] }
+  - { name: IssueSalesInvoice,   forEntity: SalesInvoice, fields: [number, date, Customer, total, Status],      actions: [issue] }
+  - { name: SendSalesInvoice,    forEntity: SalesInvoice, fields: [number, Customer, SentMethod, Status],       actions: [send] }
+  - { name: CancelSalesInvoice,  forEntity: SalesInvoice, fields: [number, Customer, total, Status],            actions: [cancel] }
+
 # Seed nomenclature loaded on deploy (sourced from codbex/codbex-methods-data). Each seed
 # materializes into a .csvim + .csv for its settings entity. Ids are explicit (the PK has no
 # generated sequence in the seed import).
@@ -108,3 +132,11 @@ seeds:
       - { id: 1, name: E-mail }
       - { id: 2, name: Delivery }
       - { id: 3, name: Pickup }
+  - name: sales-invoice-statuses
+    entity: SalesInvoiceStatus
+    rows:
+      - { id: 1, name: DRAFT }
+      - { id: 2, name: APPROVED }
+      - { id: 3, name: ISSUED }
+      - { id: 4, name: SENT }
+      - { id: 5, name: CANCELLED }
