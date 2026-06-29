@@ -38,8 +38,8 @@ which the domain entities reference via `group:`.
 
 Each domain project generates its own standalone app shell (handy for running or testing a single
 domain), **and** contributes its entities as grouped perspectives to the platform's shared shell.
-Open the shared shell at `/services/web/dashboard/` after publishing all projects and you get **one**
-app with a single grouped sidebar:
+Open the shared shell at **`/services/web/application/`** after publishing all projects and you get
+**one** app with a single grouped sidebar:
 
 - **Master Data** - UoM, Country, Currency, Customer
 - **Sales** - Sales Invoices
@@ -50,19 +50,77 @@ Each entry opens that domain's screen embedded in the one shell, so the user nev
 per-project UIs. (Grouping is driven by `group:` on each entity + the `navigation` project; it
 requires the intent shared-shell support, PRs eclipse-dirigible/dirigible#6089 and #6090.)
 
-## How to run
+## Clone, generate and run — step by step
 
-1. Import all six projects into your workspace (clone this repo; each subfolder is a project).
-2. **Generate leaf-first** so cross-model references resolve (each consumer reads the owner's
-   generated `.model`):
+1. **Start Dirigible** and open the IDE at `http://localhost:8080` (default credentials `admin` / `admin`).
+2. **Clone this repo into your workspace.** In the IDE's **Git** perspective use
+   `https://github.com/dirigiblelabs/sample-intent-multi-model.git`; each top-level subfolder
+   (`uoms`, `countries`, `currencies`, `customers`, `customer-payments`, `sales-invoices`,
+   `navigation`) becomes a project.
+3. **Generate the model files, leaf-first** so cross-model references resolve (each consumer reads the
+   owner's already-generated `.model`). For each project, double-click its `*.intent`, then click
+   **Generate** in the Intent Editor, in this order:
    1. `uoms`, `countries`, `currencies`
    2. `customers`
    3. `customer-payments`
    4. `sales-invoices`
-3. Run the model-to-code generation for each project and **publish all six** - cross-model dropdowns
-   call the owner project's service (`/services/java/<ownerProject>/...`), so every owner must be live.
 
-The default code-gen template is Java + Harmonia (Java DAO/REST + Alpine.js UI).
+   (The `navigation` project has no intent — it just declares the sidebar groups and is published
+   as-is.) Generate writes the `.edm`/`.model`/`.bpmn`/`.form`/`.report`/`.roles`/`.csvim` next to
+   each intent, and chains the model-to-code generation (Java DAO/REST + Alpine.js Harmonia UI — the
+   default recipe).
+4. **Publish everything** (Workbench → Publish All). Cross-model dropdowns call the owner project's
+   REST service (`/services/java/<ownerProject>/...`), so every owner must be live; the `.csvim`
+   seeds load the nomenclatures (payment methods, sent methods, invoice statuses, …).
+5. **Open the shared shell:** `http://localhost:8080/services/web/application/`. You land on a
+   dashboard with one KPI tile per entity and a single grouped sidebar (Master Data / Sales /
+   Payments / Settings) — every app embedded in this one shell.
+
+## Walkthrough — the sales-invoice lifecycle
+
+This is the end-to-end flow the sample is built to show. The `SalesInvoiceApproval` process
+(`trigger: { onCreate: SalesInvoice }`) walks an invoice through **Approve → Issue → Send**, with a
+**Reject** branch that cancels it.
+
+1. **Create a customer** — either up front via **Master Data → Customer → New** (fill name, country,
+   currency, save), **or inline while creating the invoice**: the invoice's **Customer** dropdown has
+   a **New** action that opens the Customer create form in a dialog and selects the new record on
+   save (this is a cross-model link — the customer lives in the `customers` project).
+2. **New invoice — the create (header) form.** Go to **Sales → Sales Invoices → New**. You get the
+   document **header**: `Number` (auto-filled by a `calculatedOnCreate` expression, read-only), `Date`
+   (required), `Due`, `Customer`, `Currency`, payment/sent method. The totals (Net/Vat/Total) are
+   still **0** — there are no line items yet.
+3. **Create.** Saving the header does two things: the page switches to **edit mode** and the
+   **line-items table appears** (you can only add items once the header exists), and — because the
+   process triggers `onCreate` — the **`SalesInvoiceApproval` process starts** and an **Approve** task
+   is created for this invoice (DRAFT, status 1).
+4. **Add an item.** In the items table click **Add** and enter name, **quantity**, **price**,
+   discount, UoM. The line's **Net = Quantity × Price**, **Vat = round(Net × 0.2, 2)** and
+   **Total = Net + Vat − Discount** are calculated live; saving the line **recomputes the invoice's
+   header totals** (Net/Vat/Total) synchronously. Add as many lines as you need.
+5. **Save** the document.
+6. **Approve (or Reject).** Open the invoice's **Approve Sales Invoice** task (from the record's
+   inline tasks or the **Process Inbox**). It's a **read-only** card showing the invoice's **current**
+   values — `Number`, `Date`, `Customer` (by name), and `Total` now reflecting the items you added
+   (not the 0 it had at creation), plus `Status`. Three buttons: **Approve** (green), **Reject** (red),
+   **Close** (just dismisses the form, leaving the task open).
+   - **Approve** → the decision continues to **Issue**; the invoice becomes **APPROVED**.
+   - **Reject** → the invoice is **CANCELLED** and the process ends.
+7. **Issue.** After approval, the **Issue Sales Invoice** task appears (read-only, **Issue** button in
+   blue). Completing it marks the invoice **ISSUED** and continues to **Send**. (In a full codbex
+   setup the definitive invoice number is generated at this step.)
+8. **Send.** The **Send Sales Invoice** task shows the `Sent Method`; the **Send** button marks the
+   invoice **SENT** and the process ends.
+
+Throughout, each task form **fetches the live invoice** when you open it (the process context holds
+only the invoice id), so it always shows current data — the total you see on the Approve form already
+includes items added after the task was created.
+
+## Notes for running a single domain
+
+The default code-gen template is Java + Harmonia. Each project also generates its **own** standalone
+SPA at `/services/web/<project>/gen/<genFolder>/index.html`, useful for testing one domain in
+isolation; the shared shell at `/services/web/application/` simply aggregates them.
 
 ## Notes
 
