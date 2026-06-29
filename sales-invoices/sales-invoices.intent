@@ -8,8 +8,9 @@ uses:
   - { model: customer-payments }
 entities:
   # Document number-series configuration. codbex populates SalesInvoice.number via
-  # NumberGeneratorService; this stand-alone example uses a calculated UUID expression below so it
-  # compiles without that external service. Swap the expression to call your generator when present.
+  # NumberGeneratorService; this stand-alone example calls a hand-written CalculatedField action
+  # (custom/sales_invoices/SalesInvoiceNumberAction.java, returning a UUID) so the real generator can
+  # drop into that class without touching the model. See SalesInvoice.imports + number below.
   - name: Number
     kind: setting
     group: settings
@@ -42,9 +43,15 @@ entities:
     icon: receipt
     audit: true
     group: sales
+    # Custom Java imports injected into the generated SalesInvoice repository so the calculated `number`
+    # field can call the hand-written action by its simple name (see custom/sales_invoices/).
+    imports: |
+      import custom.sales_invoices.SalesInvoiceNumberAction;
     fields:
       - { name: id, type: integer, primaryKey: true, generated: true }
-      - { name: number, type: string, length: 100, calculatedOnCreate: "java.util.UUID.randomUUID().toString()" }
+      # number is computed server-side by the SalesInvoiceNumberAction CalculatedField (imported above),
+      # invoked as Beans.get(SalesInvoiceNumberAction.class).calculate(entity) on create.
+      - { name: number, type: string, length: 100, calculatedActionOnCreate: SalesInvoiceNumberAction }
       - { name: date, type: date, required: true }
       - { name: due, type: date }
       # Document totals: aggregate fields shown read-only in the footer. Net/Vat/Discount/Total are
