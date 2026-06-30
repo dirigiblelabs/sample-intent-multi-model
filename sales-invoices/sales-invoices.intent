@@ -67,9 +67,11 @@ entities:
     relations:
       - { name: Customer, kind: manyToOne, to: Customer, model: customers, required: true }
       - { name: Currency, kind: manyToOne, to: Currency, model: currencies }
-      - { name: Status, kind: manyToOne, to: SalesInvoiceStatus, documentStatus: true }
-      - { name: PaymentMethod, kind: manyToOne, to: PaymentMethod }
-      - { name: SentMethod, kind: manyToOne, to: SentMethod }
+      # init = the FK's DB-level default (a target seed id), applied on insert when left unset - so a new
+      # invoice starts as DRAFT, Bank transfer, E-mail without a process step (race-free vs the trigger).
+      - { name: Status, kind: manyToOne, to: SalesInvoiceStatus, documentStatus: true, init: 1 }   # 1 = DRAFT
+      - { name: PaymentMethod, kind: manyToOne, to: PaymentMethod, init: 2 }                        # 2 = Bank transfer
+      - { name: SentMethod, kind: manyToOne, to: SentMethod, init: 1 }                              # 1 = E-mail
   - name: SalesInvoiceItem
     fields:
       - { name: id, type: integer, primaryKey: true, generated: true }
@@ -98,20 +100,20 @@ entities:
       - { name: SalesInvoice, kind: manyToOne, to: SalesInvoice, composition: true, required: true }
       - { name: CustomerPayment, kind: manyToOne, to: CustomerPayment, model: customer-payments, required: true }
 
-# Sales-invoice lifecycle. Starts when a SalesInvoice is created: the first step sets the status to
-# DRAFT (status id 1), then it walks the user tasks Approve -> Issue -> Send. Status is set by the
-# SalesInvoiceStatus seed id via `setRelationField: Status, value: N` (1=DRAFT, 2=APPROVED, 3=ISSUED,
-# 4=SENT, 5=CANCELLED) - the equivalent of the sample model's status="ACTIVE" but keyed by the seed id
-# rather than a string. The APPROVED set is a serviceTask on the *approve branch* of the decision (not
-# on the Approve task itself), so a Reject does NOT transition through APPROVED first - it goes straight
-# to CANCELLED. Issue and Send are single-action tasks, so they set their status right on the task (no
-# branch, no transient state). The real invoice-number generation at Issue remains runtime behaviour in
-# that step's handler.
+# Sales-invoice lifecycle. The invoice starts as DRAFT via the Status FK's DB-level default (init: 1 on
+# the relation) - NOT a process step, because a step that sets the status on start races the trigger's
+# ProcessId write-back. The process then walks the user tasks Approve -> Issue -> Send. Status transitions
+# are set by the SalesInvoiceStatus seed id via `setRelationField: Status, value: N` (2=APPROVED,
+# 3=ISSUED, 4=SENT, 5=CANCELLED) - the equivalent of the sample model's status="ACTIVE" but keyed by the
+# seed id rather than a string. The APPROVED set is a serviceTask on the *approve branch* of the decision
+# (not on the Approve task itself), so a Reject does NOT transition through APPROVED first - it goes
+# straight to CANCELLED. Issue and Send are single-action tasks, so they set their status right on the
+# task (no branch, no transient state). The real invoice-number generation at Issue remains runtime
+# behaviour in that step's handler.
 processes:
   - name: SalesInvoiceApproval
     trigger: { onCreate: SalesInvoice }
     steps:
-      - { name: draft,    kind: serviceTask, args: { setRelationField: Status, value: 1, next: approve } }
       - { name: approve,  kind: userTask,    args: { assignee: approver, form: ApproveSalesInvoice } }
       - { name: approveDecision, kind: decision, args: { if: "action == 'approve'", then: activate, else: cancel } }
       - { name: activate, kind: serviceTask, args: { setRelationField: Status, value: 2, next: issue } }
