@@ -99,22 +99,24 @@ entities:
       - { name: CustomerPayment, kind: manyToOne, to: CustomerPayment, model: customer-payments, required: true }
 
 # Sales-invoice lifecycle. Starts when a SalesInvoice is created (record is DRAFT, status id 1) and
-# walks the three user tasks Approve -> Issue -> Send. Each task sets Status by the seed id via
-# `setStatus` (2=APPROVED, 3=ISSUED, 4=SENT) - the equivalent of the sample model's status="ACTIVE"
-# but keyed by the SalesInvoiceStatus seed id rather than a string. Cancel is a serviceTask that
-# simply sets Status to 5=CANCELLED and ends (the always-available behaviour is enforced in the
-# generated handler). The real invoice-number generation at Issue remains runtime behaviour in that
-# step's handler.
+# walks the user tasks Approve -> Issue -> Send. Status is set by the SalesInvoiceStatus seed id via
+# `setRelationField: Status, value: N` (2=APPROVED, 3=ISSUED, 4=SENT, 5=CANCELLED) - the equivalent of
+# the sample model's status="ACTIVE" but keyed by the seed id rather than a string. The APPROVED set
+# is a serviceTask on the *approve branch* of the decision (not on the Approve task itself), so a
+# Reject does NOT transition through APPROVED first - it goes straight to CANCELLED. Issue and Send are
+# single-action tasks, so they set their status right on the task (no branch, no transient state). The
+# real invoice-number generation at Issue remains runtime behaviour in that step's handler.
 processes:
   - name: SalesInvoiceApproval
     trigger: { onCreate: SalesInvoice }
     steps:
-      - { name: approve, kind: userTask, args: { assignee: approver, form: ApproveSalesInvoice, setStatus: 2 } }
-      - { name: approveDecision, kind: decision, args: { if: "action == 'approve'", then: issue, else: cancel } }
-      - { name: issue,   kind: userTask, args: { assignee: issuer,   form: IssueSalesInvoice,   setStatus: 3, next: send } }
-      - { name: send,    kind: userTask, args: { assignee: sender,   form: SendSalesInvoice,    setStatus: 4, next: end } }
-      - { name: cancel,  kind: serviceTask, args: { setStatus: 5, next: end } }
-      - { name: end,     kind: end }
+      - { name: approve,  kind: userTask,    args: { assignee: approver, form: ApproveSalesInvoice } }
+      - { name: approveDecision, kind: decision, args: { if: "action == 'approve'", then: activate, else: cancel } }
+      - { name: activate, kind: serviceTask, args: { setRelationField: Status, value: 2, next: issue } }
+      - { name: issue,    kind: userTask,    args: { assignee: issuer,   form: IssueSalesInvoice, setRelationField: Status, value: 3, next: send } }
+      - { name: send,     kind: userTask,    args: { assignee: sender,   form: SendSalesInvoice,  setRelationField: Status, value: 4, next: end } }
+      - { name: cancel,   kind: serviceTask, args: { setRelationField: Status, value: 5, next: end } }
+      - { name: end,      kind: end }
 
 forms:
   - { name: ApproveSalesInvoice, forEntity: SalesInvoice, fields: [number, date, due, Customer, total, Status], actions: [approve, reject] }
