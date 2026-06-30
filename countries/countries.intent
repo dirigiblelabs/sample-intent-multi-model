@@ -6,8 +6,266 @@ entities:
     kind: setting
     icon: globe
     fields:
+      # Matches codbex-countries.model. Intent has no fixed-width CHAR type, so CHAR(n) is
+      # modelled as string (VARCHAR) length n; everything else (required + unique) matches.
       - { name: id, type: integer, primaryKey: true, generated: true }
-      - { name: name, type: string, required: true, length: 100 }
-      - { name: code2, type: string, length: 2 }
-      - { name: code3, type: string, length: 3 }
-      - { name: numeric, type: integer }
+      - { name: name, type: string, required: true, unique: true, length: 255 }
+      - { name: code2, type: string, required: true, unique: true, length: 2 }
+      - { name: code3, type: string, required: true, unique: true, length: 3 }
+      - { name: numeric, type: string, required: true, unique: true, length: 3 }
+
+
+
+seeds:
+  - name: countries
+    entity: Country
+    rows:
+      - { id: 1, name: "Afghanistan", code2: "AF", code3: "AFG", numeric: "004" }
+      - { id: 2, name: "Albania", code2: "AL", code3: "ALB", numeric: "008" }
+      - { id: 3, name: "Algeria", code2: "DZ", code3: "DZA", numeric: "012" }
+      - { id: 4, name: "American Samoa", code2: "AS", code3: "ASM", numeric: "016" }
+      - { id: 5, name: "Andorra", code2: "AD", code3: "AND", numeric: "020" }
+      - { id: 6, name: "Angola", code2: "AO", code3: "AGO", numeric: "024" }
+      - { id: 7, name: "Anguilla", code2: "AI", code3: "AIA", numeric: "660" }
+      - { id: 8, name: "Antarctica", code2: "AQ", code3: "ATA", numeric: "010" }
+      - { id: 9, name: "Antigua and Barbuda", code2: "AG", code3: "ATG", numeric: "028" }
+      - { id: 10, name: "Argentina", code2: "AR", code3: "ARG", numeric: "032" }
+      - { id: 11, name: "Armenia", code2: "AM", code3: "ARM", numeric: "051" }
+      - { id: 12, name: "Aruba", code2: "AW", code3: "ABW", numeric: "533" }
+      - { id: 13, name: "Australia", code2: "AU", code3: "AUS", numeric: "036" }
+      - { id: 14, name: "Austria", code2: "AT", code3: "AUT", numeric: "040" }
+      - { id: 15, name: "Azerbaijan", code2: "AZ", code3: "AZE", numeric: "031" }
+      - { id: 16, name: "Bahamas (the)", code2: "BS", code3: "BHS", numeric: "044" }
+      - { id: 17, name: "Bahrain", code2: "BH", code3: "BHR", numeric: "048" }
+      - { id: 18, name: "Bangladesh", code2: "BD", code3: "BGD", numeric: "050" }
+      - { id: 19, name: "Barbados", code2: "BB", code3: "BRB", numeric: "052" }
+      - { id: 20, name: "Belarus", code2: "BY", code3: "BLR", numeric: "112" }
+      - { id: 21, name: "Belgium", code2: "BE", code3: "BEL", numeric: "056" }
+      - { id: 22, name: "Belize", code2: "BZ", code3: "BLZ", numeric: "084" }
+      - { id: 23, name: "Benin", code2: "BJ", code3: "BEN", numeric: "204" }
+      - { id: 24, name: "Bermuda", code2: "BM", code3: "BMU", numeric: "060" }
+      - { id: 25, name: "Bhutan", code2: "BT", code3: "BTN", numeric: "064" }
+      - { id: 26, name: "Bolivia (Plurinational State of)", code2: "BO", code3: "BOL", numeric: "068" }
+      - { id: 27, name: "Bonaire, Sint Eustatius and Saba", code2: "BQ", code3: "BES", numeric: "535" }
+      - { id: 28, name: "Bosnia and Herzegovina", code2: "BA", code3: "BIH", numeric: "070" }
+      - { id: 29, name: "Botswana", code2: "BW", code3: "BWA", numeric: "072" }
+      - { id: 30, name: "Bouvet Island", code2: "BV", code3: "BVT", numeric: "074" }
+      - { id: 31, name: "Brazil", code2: "BR", code3: "BRA", numeric: "076" }
+      - { id: 32, name: "British Indian Ocean Territory (the)", code2: "IO", code3: "IOT", numeric: "086" }
+      - { id: 33, name: "Brunei Darussalam", code2: "BN", code3: "BRN", numeric: "096" }
+      - { id: 34, name: "Bulgaria", code2: "BG", code3: "BGR", numeric: "100" }
+      - { id: 35, name: "Burkina Faso", code2: "BF", code3: "BFA", numeric: "854" }
+      - { id: 36, name: "Burundi", code2: "BI", code3: "BDI", numeric: "108" }
+      - { id: 37, name: "Cabo Verde", code2: "CV", code3: "CPV", numeric: "132" }
+      - { id: 38, name: "Cambodia", code2: "KH", code3: "KHM", numeric: "116" }
+      - { id: 39, name: "Cameroon", code2: "CM", code3: "CMR", numeric: "120" }
+      - { id: 40, name: "Canada", code2: "CA", code3: "CAN", numeric: "124" }
+      - { id: 41, name: "Cayman Islands (the)", code2: "KY", code3: "CYM", numeric: "136" }
+      - { id: 42, name: "Central African Republic (the)", code2: "CF", code3: "CAF", numeric: "140" }
+      - { id: 43, name: "Chad", code2: "TD", code3: "TCD", numeric: "148" }
+      - { id: 44, name: "Chile", code2: "CL", code3: "CHL", numeric: "152" }
+      - { id: 45, name: "China", code2: "CN", code3: "CHN", numeric: "156" }
+      - { id: 46, name: "Christmas Island", code2: "CX", code3: "CXR", numeric: "162" }
+      - { id: 47, name: "Cocos (Keeling) Islands (the)", code2: "CC", code3: "CCK", numeric: "166" }
+      - { id: 48, name: "Colombia", code2: "CO", code3: "COL", numeric: "170" }
+      - { id: 49, name: "Comoros (the)", code2: "KM", code3: "COM", numeric: "174" }
+      - { id: 50, name: "Congo (the Democratic Republic of the)", code2: "CD", code3: "COD", numeric: "180" }
+      - { id: 51, name: "Congo (the)", code2: "CG", code3: "COG", numeric: "178" }
+      - { id: 52, name: "Cook Islands (the)", code2: "CK", code3: "COK", numeric: "184" }
+      - { id: 53, name: "Costa Rica", code2: "CR", code3: "CRI", numeric: "188" }
+      - { id: 54, name: "Croatia", code2: "HR", code3: "HRV", numeric: "191" }
+      - { id: 55, name: "Cuba", code2: "CU", code3: "CUB", numeric: "192" }
+      - { id: 56, name: "Curaçao", code2: "CW", code3: "CUW", numeric: "531" }
+      - { id: 57, name: "Cyprus", code2: "CY", code3: "CYP", numeric: "196" }
+      - { id: 58, name: "Czechia", code2: "CZ", code3: "CZE", numeric: "203" }
+      - { id: 59, name: "Côte d'Ivoire", code2: "CI", code3: "CIV", numeric: "384" }
+      - { id: 60, name: "Denmark", code2: "DK", code3: "DNK", numeric: "208" }
+      - { id: 61, name: "Djibouti", code2: "DJ", code3: "DJI", numeric: "262" }
+      - { id: 62, name: "Dominica", code2: "DM", code3: "DMA", numeric: "212" }
+      - { id: 63, name: "Dominican Republic (the)", code2: "DO", code3: "DOM", numeric: "214" }
+      - { id: 64, name: "Ecuador", code2: "EC", code3: "ECU", numeric: "218" }
+      - { id: 65, name: "Egypt", code2: "EG", code3: "EGY", numeric: "818" }
+      - { id: 66, name: "El Salvador", code2: "SV", code3: "SLV", numeric: "222" }
+      - { id: 67, name: "Equatorial Guinea", code2: "GQ", code3: "GNQ", numeric: "226" }
+      - { id: 68, name: "Eritrea", code2: "ER", code3: "ERI", numeric: "232" }
+      - { id: 69, name: "Estonia", code2: "EE", code3: "EST", numeric: "233" }
+      - { id: 70, name: "Eswatini", code2: "SZ", code3: "SWZ", numeric: "748" }
+      - { id: 71, name: "Ethiopia", code2: "ET", code3: "ETH", numeric: "231" }
+      - { id: 72, name: "Falkland Islands (the) [Malvinas]", code2: "FK", code3: "FLK", numeric: "238" }
+      - { id: 73, name: "Faroe Islands (the)", code2: "FO", code3: "FRO", numeric: "234" }
+      - { id: 74, name: "Fiji", code2: "FJ", code3: "FJI", numeric: "242" }
+      - { id: 75, name: "Finland", code2: "FI", code3: "FIN", numeric: "246" }
+      - { id: 76, name: "France", code2: "FR", code3: "FRA", numeric: "250" }
+      - { id: 77, name: "French Guiana", code2: "GF", code3: "GUF", numeric: "254" }
+      - { id: 78, name: "French Polynesia", code2: "PF", code3: "PYF", numeric: "258" }
+      - { id: 79, name: "French Southern Territories (the)", code2: "TF", code3: "ATF", numeric: "260" }
+      - { id: 80, name: "Gabon", code2: "GA", code3: "GAB", numeric: "266" }
+      - { id: 81, name: "Gambia (the)", code2: "GM", code3: "GMB", numeric: "270" }
+      - { id: 82, name: "Georgia", code2: "GE", code3: "GEO", numeric: "268" }
+      - { id: 83, name: "Germany", code2: "DE", code3: "DEU", numeric: "276" }
+      - { id: 84, name: "Ghana", code2: "GH", code3: "GHA", numeric: "288" }
+      - { id: 85, name: "Gibraltar", code2: "GI", code3: "GIB", numeric: "292" }
+      - { id: 86, name: "Greece", code2: "GR", code3: "GRC", numeric: "300" }
+      - { id: 87, name: "Greenland", code2: "GL", code3: "GRL", numeric: "304" }
+      - { id: 88, name: "Grenada", code2: "GD", code3: "GRD", numeric: "308" }
+      - { id: 89, name: "Guadeloupe", code2: "GP", code3: "GLP", numeric: "312" }
+      - { id: 90, name: "Guam", code2: "GU", code3: "GUM", numeric: "316" }
+      - { id: 91, name: "Guatemala", code2: "GT", code3: "GTM", numeric: "320" }
+      - { id: 92, name: "Guernsey", code2: "GG", code3: "GGY", numeric: "831" }
+      - { id: 93, name: "Guinea", code2: "GN", code3: "GIN", numeric: "324" }
+      - { id: 94, name: "Guinea-Bissau", code2: "GW", code3: "GNB", numeric: "624" }
+      - { id: 95, name: "Guyana", code2: "GY", code3: "GUY", numeric: "328" }
+      - { id: 96, name: "Haiti", code2: "HT", code3: "HTI", numeric: "332" }
+      - { id: 97, name: "Heard Island and McDonald Islands", code2: "HM", code3: "HMD", numeric: "334" }
+      - { id: 98, name: "Holy See (the)", code2: "VA", code3: "VAT", numeric: "336" }
+      - { id: 99, name: "Honduras", code2: "HN", code3: "HND", numeric: "340" }
+      - { id: 100, name: "Hong Kong", code2: "HK", code3: "HKG", numeric: "344" }
+      - { id: 101, name: "Hungary", code2: "HU", code3: "HUN", numeric: "348" }
+      - { id: 102, name: "Iceland", code2: "IS", code3: "ISL", numeric: "352" }
+      - { id: 103, name: "India", code2: "IN", code3: "IND", numeric: "356" }
+      - { id: 104, name: "Indonesia", code2: "ID", code3: "IDN", numeric: "360" }
+      - { id: 105, name: "Iran (Islamic Republic of)", code2: "IR", code3: "IRN", numeric: "364" }
+      - { id: 106, name: "Iraq", code2: "IQ", code3: "IRQ", numeric: "368" }
+      - { id: 107, name: "Ireland", code2: "IE", code3: "IRL", numeric: "372" }
+      - { id: 108, name: "Isle of Man", code2: "IM", code3: "IMN", numeric: "833" }
+      - { id: 109, name: "Israel", code2: "IL", code3: "ISR", numeric: "376" }
+      - { id: 110, name: "Italy", code2: "IT", code3: "ITA", numeric: "380" }
+      - { id: 111, name: "Jamaica", code2: "JM", code3: "JAM", numeric: "388" }
+      - { id: 112, name: "Japan", code2: "JP", code3: "JPN", numeric: "392" }
+      - { id: 113, name: "Jersey", code2: "JE", code3: "JEY", numeric: "832" }
+      - { id: 114, name: "Jordan", code2: "JO", code3: "JOR", numeric: "400" }
+      - { id: 115, name: "Kazakhstan", code2: "KZ", code3: "KAZ", numeric: "398" }
+      - { id: 116, name: "Kenya", code2: "KE", code3: "KEN", numeric: "404" }
+      - { id: 117, name: "Kiribati", code2: "KI", code3: "KIR", numeric: "296" }
+      - { id: 118, name: "Korea (the Democratic People's Republic of)", code2: "KP", code3: "PRK", numeric: "408" }
+      - { id: 119, name: "Korea (the Republic of)", code2: "KR", code3: "KOR", numeric: "410" }
+      - { id: 120, name: "Kuwait", code2: "KW", code3: "KWT", numeric: "414" }
+      - { id: 121, name: "Kyrgyzstan", code2: "KG", code3: "KGZ", numeric: "417" }
+      - { id: 122, name: "Lao People's Democratic Republic (the)", code2: "LA", code3: "LAO", numeric: "418" }
+      - { id: 123, name: "Latvia", code2: "LV", code3: "LVA", numeric: "428" }
+      - { id: 124, name: "Lebanon", code2: "LB", code3: "LBN", numeric: "422" }
+      - { id: 125, name: "Lesotho", code2: "LS", code3: "LSO", numeric: "426" }
+      - { id: 126, name: "Liberia", code2: "LR", code3: "LBR", numeric: "430" }
+      - { id: 127, name: "Libya", code2: "LY", code3: "LBY", numeric: "434" }
+      - { id: 128, name: "Liechtenstein", code2: "LI", code3: "LIE", numeric: "438" }
+      - { id: 129, name: "Lithuania", code2: "LT", code3: "LTU", numeric: "440" }
+      - { id: 130, name: "Luxembourg", code2: "LU", code3: "LUX", numeric: "442" }
+      - { id: 131, name: "Macao", code2: "MO", code3: "MAC", numeric: "446" }
+      - { id: 132, name: "Madagascar", code2: "MG", code3: "MDG", numeric: "450" }
+      - { id: 133, name: "Malawi", code2: "MW", code3: "MWI", numeric: "454" }
+      - { id: 134, name: "Malaysia", code2: "MY", code3: "MYS", numeric: "458" }
+      - { id: 135, name: "Maldives", code2: "MV", code3: "MDV", numeric: "462" }
+      - { id: 136, name: "Mali", code2: "ML", code3: "MLI", numeric: "466" }
+      - { id: 137, name: "Malta", code2: "MT", code3: "MLT", numeric: "470" }
+      - { id: 138, name: "Marshall Islands (the)", code2: "MH", code3: "MHL", numeric: "584" }
+      - { id: 139, name: "Martinique", code2: "MQ", code3: "MTQ", numeric: "474" }
+      - { id: 140, name: "Mauritania", code2: "MR", code3: "MRT", numeric: "478" }
+      - { id: 141, name: "Mauritius", code2: "MU", code3: "MUS", numeric: "480" }
+      - { id: 142, name: "Mayotte", code2: "YT", code3: "MYT", numeric: "175" }
+      - { id: 143, name: "Mexico", code2: "MX", code3: "MEX", numeric: "484" }
+      - { id: 144, name: "Micronesia (Federated States of)", code2: "FM", code3: "FSM", numeric: "583" }
+      - { id: 145, name: "Moldova (the Republic of)", code2: "MD", code3: "MDA", numeric: "498" }
+      - { id: 146, name: "Monaco", code2: "MC", code3: "MCO", numeric: "492" }
+      - { id: 147, name: "Mongolia", code2: "MN", code3: "MNG", numeric: "496" }
+      - { id: 148, name: "Montenegro", code2: "ME", code3: "MNE", numeric: "499" }
+      - { id: 149, name: "Montserrat", code2: "MS", code3: "MSR", numeric: "500" }
+      - { id: 150, name: "Morocco", code2: "MA", code3: "MAR", numeric: "504" }
+      - { id: 151, name: "Mozambique", code2: "MZ", code3: "MOZ", numeric: "508" }
+      - { id: 152, name: "Myanmar", code2: "MM", code3: "MMR", numeric: "104" }
+      - { id: 153, name: "Namibia", code2: "NA", code3: "NAM", numeric: "516" }
+      - { id: 154, name: "Nauru", code2: "NR", code3: "NRU", numeric: "520" }
+      - { id: 155, name: "Nepal", code2: "NP", code3: "NPL", numeric: "524" }
+      - { id: 156, name: "Netherlands (the)", code2: "NL", code3: "NLD", numeric: "528" }
+      - { id: 157, name: "New Caledonia", code2: "NC", code3: "NCL", numeric: "540" }
+      - { id: 158, name: "New Zealand", code2: "NZ", code3: "NZL", numeric: "554" }
+      - { id: 159, name: "Nicaragua", code2: "NI", code3: "NIC", numeric: "558" }
+      - { id: 160, name: "Niger (the)", code2: "NE", code3: "NER", numeric: "562" }
+      - { id: 161, name: "Nigeria", code2: "NG", code3: "NGA", numeric: "566" }
+      - { id: 162, name: "Niue", code2: "NU", code3: "NIU", numeric: "570" }
+      - { id: 163, name: "Norfolk Island", code2: "NF", code3: "NFK", numeric: "574" }
+      - { id: 164, name: "North Macedonia", code2: "MK", code3: "MKD", numeric: "807" }
+      - { id: 165, name: "Northern Mariana Islands (the)", code2: "MP", code3: "MNP", numeric: "580" }
+      - { id: 166, name: "Norway", code2: "NO", code3: "NOR", numeric: "578" }
+      - { id: 167, name: "Oman", code2: "OM", code3: "OMN", numeric: "512" }
+      - { id: 168, name: "Pakistan", code2: "PK", code3: "PAK", numeric: "586" }
+      - { id: 169, name: "Palau", code2: "PW", code3: "PLW", numeric: "585" }
+      - { id: 170, name: "Palestine, State of", code2: "PS", code3: "PSE", numeric: "275" }
+      - { id: 171, name: "Panama", code2: "PA", code3: "PAN", numeric: "591" }
+      - { id: 172, name: "Papua New Guinea", code2: "PG", code3: "PNG", numeric: "598" }
+      - { id: 173, name: "Paraguay", code2: "PY", code3: "PRY", numeric: "600" }
+      - { id: 174, name: "Peru", code2: "PE", code3: "PER", numeric: "604" }
+      - { id: 175, name: "Philippines (the)", code2: "PH", code3: "PHL", numeric: "608" }
+      - { id: 176, name: "Pitcairn", code2: "PN", code3: "PCN", numeric: "612" }
+      - { id: 177, name: "Poland", code2: "PL", code3: "POL", numeric: "616" }
+      - { id: 178, name: "Portugal", code2: "PT", code3: "PRT", numeric: "620" }
+      - { id: 179, name: "Puerto Rico", code2: "PR", code3: "PRI", numeric: "630" }
+      - { id: 180, name: "Qatar", code2: "QA", code3: "QAT", numeric: "634" }
+      - { id: 181, name: "Romania", code2: "RO", code3: "ROU", numeric: "642" }
+      - { id: 182, name: "Russian Federation (the)", code2: "RU", code3: "RUS", numeric: "643" }
+      - { id: 183, name: "Rwanda", code2: "RW", code3: "RWA", numeric: "646" }
+      - { id: 184, name: "Réunion", code2: "RE", code3: "REU", numeric: "638" }
+      - { id: 185, name: "Saint Barthélemy", code2: "BL", code3: "BLM", numeric: "652" }
+      - { id: 186, name: "Saint Helena, Ascension and Tristan da Cunha", code2: "SH", code3: "SHN", numeric: "654" }
+      - { id: 187, name: "Saint Kitts and Nevis", code2: "KN", code3: "KNA", numeric: "659" }
+      - { id: 188, name: "Saint Lucia", code2: "LC", code3: "LCA", numeric: "662" }
+      - { id: 189, name: "Saint Martin (French part)", code2: "MF", code3: "MAF", numeric: "663" }
+      - { id: 190, name: "Saint Pierre and Miquelon", code2: "PM", code3: "SPM", numeric: "666" }
+      - { id: 191, name: "Saint Vincent and the Grenadines", code2: "VC", code3: "VCT", numeric: "670" }
+      - { id: 192, name: "Samoa", code2: "WS", code3: "WSM", numeric: "882" }
+      - { id: 193, name: "San Marino", code2: "SM", code3: "SMR", numeric: "674" }
+      - { id: 194, name: "Sao Tome and Principe", code2: "ST", code3: "STP", numeric: "678" }
+      - { id: 195, name: "Saudi Arabia", code2: "SA", code3: "SAU", numeric: "682" }
+      - { id: 196, name: "Senegal", code2: "SN", code3: "SEN", numeric: "686" }
+      - { id: 197, name: "Serbia", code2: "RS", code3: "SRB", numeric: "688" }
+      - { id: 198, name: "Seychelles", code2: "SC", code3: "SYC", numeric: "690" }
+      - { id: 199, name: "Sierra Leone", code2: "SL", code3: "SLE", numeric: "694" }
+      - { id: 200, name: "Singapore", code2: "SG", code3: "SGP", numeric: "702" }
+      - { id: 201, name: "Sint Maarten (Dutch part)", code2: "SX", code3: "SXM", numeric: "534" }
+      - { id: 202, name: "Slovakia", code2: "SK", code3: "SVK", numeric: "703" }
+      - { id: 203, name: "Slovenia", code2: "SI", code3: "SVN", numeric: "705" }
+      - { id: 204, name: "Solomon Islands", code2: "SB", code3: "SLB", numeric: "090" }
+      - { id: 205, name: "Somalia", code2: "SO", code3: "SOM", numeric: "706" }
+      - { id: 206, name: "South Africa", code2: "ZA", code3: "ZAF", numeric: "710" }
+      - { id: 207, name: "South Georgia and the South Sandwich Islands", code2: "GS", code3: "SGS", numeric: "239" }
+      - { id: 208, name: "South Sudan", code2: "SS", code3: "SSD", numeric: "728" }
+      - { id: 209, name: "Spain", code2: "ES", code3: "ESP", numeric: "724" }
+      - { id: 210, name: "Sri Lanka", code2: "LK", code3: "LKA", numeric: "144" }
+      - { id: 211, name: "Sudan (the)", code2: "SD", code3: "SDN", numeric: "729" }
+      - { id: 212, name: "Suriname", code2: "SR", code3: "SUR", numeric: "740" }
+      - { id: 213, name: "Svalbard and Jan Mayen", code2: "SJ", code3: "SJM", numeric: "744" }
+      - { id: 214, name: "Sweden", code2: "SE", code3: "SWE", numeric: "752" }
+      - { id: 215, name: "Switzerland", code2: "CH", code3: "CHE", numeric: "756" }
+      - { id: 216, name: "Syrian Arab Republic (the)", code2: "SY", code3: "SYR", numeric: "760" }
+      - { id: 217, name: "Taiwan (Province of China)", code2: "TW", code3: "TWN", numeric: "158" }
+      - { id: 218, name: "Tajikistan", code2: "TJ", code3: "TJK", numeric: "762" }
+      - { id: 219, name: "Tanzania, the United Republic of", code2: "TZ", code3: "TZA", numeric: "834" }
+      - { id: 220, name: "Thailand", code2: "TH", code3: "THA", numeric: "764" }
+      - { id: 221, name: "Timor-Leste", code2: "TL", code3: "TLS", numeric: "626" }
+      - { id: 222, name: "Togo", code2: "TG", code3: "TGO", numeric: "768" }
+      - { id: 223, name: "Tokelau", code2: "TK", code3: "TKL", numeric: "772" }
+      - { id: 224, name: "Tonga", code2: "TO", code3: "TON", numeric: "776" }
+      - { id: 225, name: "Trinidad and Tobago", code2: "TT", code3: "TTO", numeric: "780" }
+      - { id: 226, name: "Tunisia", code2: "TN", code3: "TUN", numeric: "788" }
+      - { id: 227, name: "Turkey", code2: "TR", code3: "TUR", numeric: "792" }
+      - { id: 228, name: "Turkmenistan", code2: "TM", code3: "TKM", numeric: "795" }
+      - { id: 229, name: "Turks and Caicos Islands (the)", code2: "TC", code3: "TCA", numeric: "796" }
+      - { id: 230, name: "Tuvalu", code2: "TV", code3: "TUV", numeric: "798" }
+      - { id: 231, name: "Uganda", code2: "UG", code3: "UGA", numeric: "800" }
+      - { id: 232, name: "Ukraine", code2: "UA", code3: "UKR", numeric: "804" }
+      - { id: 233, name: "United Arab Emirates (the)", code2: "AE", code3: "ARE", numeric: "784" }
+      - { id: 234, name: "United Kingdom of Great Britain and Northern Ireland (the)", code2: "GB", code3: "GBR", numeric: "826" }
+      - { id: 235, name: "United States Minor Outlying Islands (the)", code2: "UM", code3: "UMI", numeric: "581" }
+      - { id: 236, name: "United States of America (the)", code2: "US", code3: "USA", numeric: "840" }
+      - { id: 237, name: "Uruguay", code2: "UY", code3: "URY", numeric: "858" }
+      - { id: 238, name: "Uzbekistan", code2: "UZ", code3: "UZB", numeric: "860" }
+      - { id: 239, name: "Vanuatu", code2: "VU", code3: "VUT", numeric: "548" }
+      - { id: 240, name: "Venezuela (Bolivarian Republic of)", code2: "VE", code3: "VEN", numeric: "862" }
+      - { id: 241, name: "Viet Nam", code2: "VN", code3: "VNM", numeric: "704" }
+      - { id: 242, name: "Virgin Islands (British)", code2: "VG", code3: "VGB", numeric: "092" }
+      - { id: 243, name: "Virgin Islands (U.S.)", code2: "VI", code3: "VIR", numeric: "850" }
+      - { id: 244, name: "Wallis and Futuna", code2: "WF", code3: "WLF", numeric: "876" }
+      - { id: 245, name: "Western Sahara*", code2: "EH", code3: "ESH", numeric: "732" }
+      - { id: 246, name: "Yemen", code2: "YE", code3: "YEM", numeric: "887" }
+      - { id: 247, name: "Zambia", code2: "ZM", code3: "ZMB", numeric: "894" }
+      - { id: 248, name: "Zimbabwe", code2: "ZW", code3: "ZWE", numeric: "716" }
+      - { id: 249, name: "Åland Islands", code2: "AX", code3: "ALA", numeric: "248" }
