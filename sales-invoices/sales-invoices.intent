@@ -51,7 +51,7 @@ entities:
       - { name: id, type: integer, primaryKey: true, generated: true }
       # number is computed server-side by the SalesInvoiceNumberAction CalculatedField (imported above),
       # invoked as Beans.get(SalesInvoiceNumberAction.class).calculate(entity) on create.
-      - { name: number, type: string, length: 100, calculatedActionOnCreate: SalesInvoiceNumberAction }
+      - { name: number, type: string, length: 100, calculatedActionOnCreate: SalesInvoiceNumberAction, documentTitle: true }
       - { name: date, type: date, required: true }
       - { name: due, type: date }
       # Document totals: aggregate fields shown read-only in the footer. Net/Vat/Discount/Total are
@@ -61,13 +61,13 @@ entities:
       - { name: net, type: decimal, precision: 18, scale: 2, aggregate: true }
       - { name: vat, type: decimal, precision: 18, scale: 2, aggregate: true }
       - { name: discount, type: decimal, precision: 18, scale: 2, aggregate: true }
-      - { name: total, type: decimal, precision: 18, scale: 2, aggregate: true }
       - { name: paid, type: decimal, precision: 18, scale: 2, aggregate: true }
+      - { name: total, type: decimal, precision: 18, scale: 2, aggregate: true }
       - { name: uuid, type: uuid, unique: true }
     relations:
       - { name: Customer, kind: manyToOne, to: Customer, model: customers, required: true }
       - { name: Currency, kind: manyToOne, to: Currency, model: currencies }
-      - { name: Status, kind: manyToOne, to: SalesInvoiceStatus }
+      - { name: Status, kind: manyToOne, to: SalesInvoiceStatus, documentStatus: true }
       - { name: PaymentMethod, kind: manyToOne, to: PaymentMethod }
       - { name: SentMethod, kind: manyToOne, to: SentMethod }
   - name: SalesInvoiceItem
