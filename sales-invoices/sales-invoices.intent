@@ -7,20 +7,10 @@ uses:
   - { model: uoms }
   - { model: customer-payments }
 entities:
-  # Document number-series configuration. codbex populates SalesInvoice.number via
-  # NumberGeneratorService; this stand-alone example calls a hand-written CalculatedField action
-  # (custom/sales_invoices/SalesInvoiceNumberAction.java, returning a UUID) so the real generator can
-  # drop into that class without touching the model. See SalesInvoice.imports + number below.
-  - name: Number
-    kind: setting
-    group: settings
-    fields:
-      - { name: id, type: integer, primaryKey: true, generated: true }
-      - { name: name, type: string, length: 100 }
-      - { name: type, type: string, required: true, unique: true, length: 100 }
-      - { name: prefix, type: string, length: 20 }
-      - { name: length, type: integer }
-      - { name: value, type: long }
+  # Number-series configuration now lives in the shared `numbers` project (a Number setting entity +
+  # the reusable DocumentNumberGenerator). SalesInvoice.number gets a UUID placeholder on create
+  # (SalesInvoiceNumberAction) and the real sequential SI-number just after Issue (the generateNumber
+  # serviceTask -> DocumentNumberGeneratorDelegate). See SalesInvoice.imports + number below.
   - name: SalesInvoiceStatus
     kind: setting
     group: settings
@@ -108,8 +98,12 @@ entities:
 # seed id rather than a string. The APPROVED set is a serviceTask on the *approve branch* of the decision
 # (not on the Approve task itself), so a Reject does NOT transition through APPROVED first - it goes
 # straight to CANCELLED. Issue and Send are single-action tasks, so they set their status right on the
-# task (no branch, no transient state). The real invoice-number generation at Issue remains runtime
-# behaviour in that step's handler.
+# task (no branch, no transient state). The real sequential invoice number is stamped just AFTER Issue
+# by the `generateNumber` serviceTask: a `delegate` bound via flowable:class to a hand-written
+# DocumentNumberGeneratorDelegate (in this project's custom/, so it saves the invoice through the
+# generated SalesInvoiceRepository), which formats the number via the reusable DocumentNumberGenerator
+# in the cross-project `numbers` app. (The `number` field's calculatedActionOnCreate still assigns a
+# UUID on create - a draft placeholder the Issue step overwrites with the real SI-number.)
 processes:
   - name: SalesInvoiceApproval
     trigger: { onCreate: SalesInvoice }
@@ -117,7 +111,17 @@ processes:
       - { name: approve,  kind: userTask,    args: { assignee: approver, form: ApproveSalesInvoice } }
       - { name: approveDecision, kind: decision, args: { if: "action == 'approve'", then: activate, else: cancel } }
       - { name: activate, kind: serviceTask, args: { setRelationField: Status, value: 2, next: issue } }
-      - { name: issue,    kind: userTask,    args: { assignee: issuer,   form: IssueSalesInvoice, setRelationField: Status, value: 3, next: send } }
+      - { name: issue,    kind: userTask,    args: { assignee: issuer,   form: IssueSalesInvoice, setRelationField: Status, value: 3, next: generateNumber } }
+      # After Issue, stamp the real sequential invoice number via a hand-written delegate that loads and
+      # saves the SalesInvoice through its generated repository (validations/events/i18n), delegating the
+      # prefix + zero-padded formatting to the reusable DocumentNumberGenerator in the `numbers` project.
+      # The number series is selected by the injected `type` ("Sales Invoice" -> Number.Type row SI/10).
+      - name: generateNumber
+        kind: serviceTask
+        args:
+          delegate: custom.sales_invoices.DocumentNumberGeneratorDelegate
+          fields: { type: "Sales Invoice" }
+          next: send
       - { name: send,     kind: userTask,    args: { assignee: sender,   form: SendSalesInvoice,  setRelationField: Status, value: 4, next: end } }
       - { name: cancel,   kind: serviceTask, args: { setRelationField: Status, value: 5, next: end } }
       - { name: end,      kind: end }

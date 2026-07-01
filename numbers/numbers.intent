@@ -1,0 +1,32 @@
+name: numbers
+description: General document number generator - one sequence per document type (prefix + zero-padded counter)
+icon: hash
+entities:
+  # Number-series configuration, ported from codbex/codbex-number-generator. One row per document type;
+  # `value` is the last issued counter. A hand-written reusable generator (custom/numbers/
+  # DocumentNumberGenerator.java) increments `value` and formats it as prefix + zero-padded number,
+  # e.g. type "Sales Invoice" (prefix SI, length 10) -> "SI00000001". Other projects (sales-invoices,
+  # orders, ...) call that generator from their own document delegates - see the sales-invoices process.
+  - name: Number
+    kind: setting
+    group: settings
+    icon: hash
+    fields:
+      - { name: id, type: integer, primaryKey: true, generated: true }
+      - { name: name, type: string, length: 100 }
+      - { name: type, type: string, required: true, unique: true, length: 100 }
+      - { name: prefix, type: string, length: 20 }
+      - { name: length, type: integer }
+      - { name: value, type: long }
+
+# Seed the common document series (subset of codbex/codbex-number-generator-data numbers.csv). Ids are
+# explicit (no generated sequence in the seed import); value starts at 0.
+seeds:
+  - name: numbers
+    entity: Number
+    rows:
+      - { id: 1, name: Sales Invoice, type: Sales Invoice, prefix: SI, length: 10, value: 0 }
+      - { id: 2, name: Sales Order, type: Sales Order, prefix: SO, length: 10, value: 0 }
+      - { id: 3, name: Quotation, type: Quotation, prefix: QT, length: 10, value: 0 }
+      - { id: 4, name: Purchase Order, type: Purchase Order, prefix: PO, length: 10, value: 0 }
+      - { id: 5, name: Customer Payment, type: Customer Payment, prefix: CPAY, length: 10, value: 0 }
