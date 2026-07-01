@@ -44,15 +44,16 @@ entities:
       - { name: number, type: string, length: 100, calculatedActionOnCreate: SalesInvoiceNumberAction, documentTitle: true }
       - { name: date, type: date, required: true }
       - { name: due, type: date }
-      # Document totals: aggregate fields shown read-only in the footer. Net/Vat/Discount/Total are
-      # kept equal to the sum of the line items' same-named fields (auto-derived sum roll-ups, by name
-      # convention). Paid is shown in the footer too but is not summed from items (payments carry an
-      # `amount`, not a `paid`); wire it via an explicit payments roll-up when needed.
+      # Document totals: aggregate fields shown read-only in the footer. Net/Vat/Discount/Total are kept
+      # equal to the sum of the line items' same-named fields (auto-derived, by name convention). Paid and
+      # Balance are maintained by the `invoicePaid` roll-up below: Paid = sum of the payment allocations,
+      # Balance = Total - Paid; that same roll-up flips Status to PARTIAL / PAID at the thresholds.
       - { name: net, type: decimal, precision: 18, scale: 2, aggregate: true }
       - { name: vat, type: decimal, precision: 18, scale: 2, aggregate: true }
       - { name: discount, type: decimal, precision: 18, scale: 2, aggregate: true }
-      - { name: paid, type: decimal, precision: 18, scale: 2, aggregate: true }
       - { name: total, type: decimal, precision: 18, scale: 2, aggregate: true }
+      - { name: paid, type: decimal, precision: 18, scale: 2, aggregate: true }
+      - { name: balance, type: decimal, precision: 18, scale: 2, aggregate: true }
       - { name: uuid, type: uuid, unique: true }
     relations:
       - { name: Customer, kind: manyToOne, to: Customer, model: customers, required: true }
@@ -121,7 +122,11 @@ processes:
         args:
           delegate: custom.sales_invoices.DocumentNumberGeneratorDelegate
           fields: { type: "Sales Invoice" }
-          next: send
+          next: allocatePayments
+      # Now that the invoice is ISSUED (has its number), pull any unallocated balance from the customer's
+      # existing payments onto it - the settlement's generated onInvoice delegate (gen/events). Each
+      # allocation created here feeds the `invoicePaid` roll-up, which sets Paid / Balance / Status.
+      - { name: allocatePayments, kind: serviceTask, args: { delegate: gen.events.AutoAllocateOnInvoice, next: send } }
       - { name: send,     kind: userTask,    args: { assignee: sender,   form: SendSalesInvoice,  setRelationField: Status, value: 4, next: end } }
       - { name: cancel,   kind: serviceTask, args: { setRelationField: Status, value: 5, next: end } }
       - { name: end,      kind: end }
@@ -156,3 +161,24 @@ seeds:
       - { id: 3, name: ISSUED }
       - { id: 4, name: SENT }
       - { id: 5, name: CANCELLED }
+      - { id: 6, name: PARTIAL }     # paid > 0 and < total (auto-set by the paid rollup)
+      - { id: 7, name: PAID }        # paid == total (auto-set by the paid rollup)
+
+# Payment-allocation roll-up: SalesInvoice.paid = sum of its SalesInvoiceCustomerPayment amounts,
+# Balance = Total - Paid, and Status is auto-set to PAID (paid == total) / PARTIAL (0 < paid < total).
+# Recomputed on every allocation create/update/delete, persisted without re-firing onUpdate reactions.
+rollups:
+  - { name: invoicePaid, entity: SalesInvoiceCustomerPayment, via: SalesInvoice, field: paid, op: sum, of: amount,
+      capacity: total, balance: balance, status: Status, statusWhenFull: 7, statusWhenPartial: 6 }
+
+# Auto-settlement (n:m payment allocation). Generates two client-Java glue classes under gen/events:
+#  - AutoAllocateOnPayment: on a new CustomerPayment, spread it across the customer's open invoices
+#    (oldest first, same Customer + Currency), creating SalesInvoiceCustomerPayment rows until spent;
+#  - AutoAllocateOnInvoice: pulls the customer's unallocated payment balance onto an invoice - wired as
+#    the `allocatePayments` delegate serviceTask after Issue (see the process above).
+# Payable invoices are ISSUED(3) / SENT(4) / PARTIAL(6) with a remaining balance. Each created row feeds
+# the invoicePaid roll-up (Paid / Balance / Status). Read-only on both sides for now.
+settlements:
+  - { name: autoAllocate, junction: SalesInvoiceCustomerPayment, invoice: SalesInvoice, payment: CustomerPayment,
+      amount: amount, total: total, paid: paid, pot: amount, order: date,
+      match: [Customer, Currency], status: Status, payableStatuses: [3, 4, 6] }
